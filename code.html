@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background text-on-surface" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OmniRFM Analytics - Modelado y Segmentación de Clientes</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface": "#131b2e",
+            "surface-container-high": "#e2e7ff",
+            "primary-container": "#1e3a8a",
+            "on-tertiary-container": "#bc9bff",
+            "on-primary-container": "#90a8ff",
+            "outline-variant": "#c5c5d3",
+            "on-background": "#131b2e",
+            "tertiary-container": "#5200b5",
+            "inverse-primary": "#b6c4ff",
+            "primary-fixed": "#dce1ff",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#4edea3",
+            "on-error": "#ffffff",
+            "outline": "#757682",
+            "surface-dim": "#d2d9f4",
+            "tertiary-fixed-dim": "#d2bbff",
+            "secondary": "#006c49",
+            "on-tertiary-fixed": "#25005a",
+            "on-secondary-fixed-variant": "#005236",
+            "primary-fixed-dim": "#b6c4ff",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed": "#eaddff",
+            "surface-container-highest": "#dae2fd",
+            "background": "#faf8ff",
+            "on-tertiary-fixed-variant": "#5a00c6",
+            "on-primary-fixed": "#00164e",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "surface-container": "#eaedff",
+            "secondary-fixed": "#6ffbbe",
+            "surface-tint": "#4059aa",
+            "secondary-container": "#6cf8bb",
+            "on-surface-variant": "#444651",
+            "tertiary": "#37007e",
+            "inverse-surface": "#283044",
+            "on-primary-fixed-variant": "#264191",
+            "primary": "#00236f",
+            "on-secondary-container": "#00714d",
+            "surface-variant": "#dae2fd",
+            "surface-bright": "#faf8ff",
+            "on-tertiary": "#ffffff",
+            "inverse-on-surface": "#eef0ff",
+            "surface": "#faf8ff",
+            "on-secondary-fixed": "#002113",
+            "surface-container-low": "#f2f3ff",
+            "on-error-container": "#93000a"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "space-xl": "2.5rem",
+            "margin": "2rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "gutter-mobile": "0.75rem"
+          },
+          "fontFamily": {
+            "metric-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "metric-xl": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "display-lg-mobile": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "metric-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "metric-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "display-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+            "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+            "display-lg": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .tnum { font-feature-settings: 'tnum' on, 'lnum' on; }
+    .matrix-cell:hover .cell-tooltip { opacity: 1; pointer-events: auto; transform: translateY(-4px); }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md selection:bg-primary selection:text-white">
+<!-- ================= TOP APP BAR (Shared Components Tokenized) ================= -->
+<header class="bg-surface-container-lowest border-b border-outline-variant shadow-sm docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center w-full px-6 h-16 max-w-[1600px] mx-auto">
+<!-- Brand & Search cluster -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined text-[24px]">hub</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">OmniRFM Analytics</span>
+<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-secondary-container text-on-secondary-container uppercase tracking-wider">v2.4 Live Model</span>
+</div>
+<p class="text-[11px] font-label-sm text-outline">Retail Intelligence Engine</p>
+</div>
+</div>
+<!-- Search Bar (on_left) -->
+<div class="hidden lg:flex items-center relative w-80">
+<span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span>
+<input class="w-full pl-9 pr-4 py-1.5 text-body-sm bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Buscar Customer ID, Segmento o Categoría..." type="text"/>
+<kbd class="absolute right-2.5 text-[10px] bg-surface-container px-1.5 py-0.5 rounded text-outline border border-outline-variant">⌘K</kbd>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary font-semibold border-b-2 border-primary py-4 text-label-md flex items-center gap-1.5" href="#dashboard">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+          Dashboard
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-4 text-label-md transition-colors duration-150 flex items-center gap-1.5" href="#matriz">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+          Segmentación
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-4 text-label-md transition-colors duration-150 flex items-center gap-1.5" href="#explorador">
+<span class="material-symbols-outlined text-[18px]">group</span>
+          Explorador
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-4 text-label-md transition-colors duration-150 flex items-center gap-1.5" href="#estrategias">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+          Modelado RFM
+        </a>
+</nav>
+<!-- Trailing Action Buttons & Profiling -->
+<div class="flex items-center gap-3">
+<button class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-label-md font-semibold text-primary bg-surface-container-low border border-outline-variant rounded-lg hover:bg-surface-container transition-colors duration-150 active:scale-[0.99]" id="btnLoadExample">
+<span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+          Cargar Dataset
+        </button>
+<button class="inline-flex items-center gap-2 px-4 py-2 text-label-md font-semibold text-white bg-primary rounded-lg shadow-sm hover:bg-primary-container transition-all duration-150 active:scale-[0.99]">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+          Exportar Reporte
+        </button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1 hidden sm:block"></div>
+<!-- Trailing Icon Actions -->
+<div class="hidden sm:flex items-center gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors" title="Notificaciones">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors" title="Ajustes de Modelo">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors" title="Centro de Ayuda">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center font-bold text-label-sm text-primary ml-1" title="Avatar de usuario analista retail">
+          AR
+        </div>
+</div>
+</div>
+</header>
+<!-- ================= LAYOUT BODY WRAPPER ================= -->
+<div class="flex-1 flex max-w-[1600px] w-full mx-auto relative">
+<!-- ================= FIXED SIDE NAV BAR ================= -->
+<aside class="hidden xl:flex flex-col justify-between w-64 border-r border-outline-variant bg-surface sticky top-16 h-[calc(100vh-4rem)] p-4 shrink-0">
+<div class="space-y-6">
+<!-- Dataset Context Box -->
+<div class="p-3 bg-surface-container-low border border-outline-variant rounded-xl">
+<div class="flex items-center gap-2.5">
+<div class="w-7 h-7 rounded bg-primary text-white flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+</div>
+<div class="overflow-hidden">
+<h2 class="text-label-md font-bold text-on-surface truncate">Retail Omnichannel</h2>
+<p class="text-[11px] text-secondary font-medium truncate flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block animate-pulse"></span>
+                Q3_sales.csv (Activo)
+              </p>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-outline-variant/60 flex justify-between items-center text-[10px] text-outline">
+<span>1,000 transacciones</span>
+<span class="font-mono">100% OK</span>
+</div>
+</div>
+<!-- Main Nav Cluster -->
+<div>
+<span class="text-[10px] font-label-sm text-outline uppercase tracking-wider px-3 mb-2 block">Vistas Analíticas</span>
+<nav class="space-y-1">
+<a class="bg-surface-container-high text-primary font-semibold rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-all duration-150" href="#dashboard">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+              Resumen General
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-colors duration-150" href="#matriz">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+              Matriz RFM 5x5
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-colors duration-150" href="#segmentos">
+<span class="material-symbols-outlined text-[20px]">group</span>
+              Segmentos Activos
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-colors duration-150" href="#enriesgo">
+<span class="material-symbols-outlined text-[20px] text-error">warning</span>
+              Clientes en Riesgo
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-colors duration-150" href="#config-scoring">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+              Configuración Pesos
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg px-3 py-2.5 flex items-center gap-3 text-label-md transition-colors duration-150" href="#cargas">
+<span class="material-symbols-outlined text-[20px]">cloud_upload</span>
+              Historial Cargas
+            </a>
+</nav>
+</div>
+</div>
+<!-- Footer Side Actions -->
+<div class="space-y-3 pt-4 border-t border-outline-variant">
+<button class="w-full py-2.5 px-3 bg-primary text-white rounded-lg text-label-md font-semibold flex items-center justify-center gap-2 shadow-sm hover:bg-primary-container active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+          Recalcular Scoring
+        </button>
+<div class="space-y-0.5">
+<a class="text-on-surface-variant hover:text-on-surface rounded-lg px-3 py-2 flex items-center gap-3 text-label-md hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+            Documentación RFM
+          </a>
+<a class="text-on-surface-variant hover:text-on-surface rounded-lg px-3 py-2 flex items-center gap-3 text-label-md hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+            Ajustes de Cuenta
+          </a>
+</div>
+</div>
+</aside>
+<!-- ================= MAIN CONTENT CANVAS ================= -->
+<main class="flex-1 p-4 md:p-6 lg:p-8 space-y-6 overflow-y-auto">
+<!-- ================= 1. DATA INGESTION & COLUMN MAPPER HUB ================= -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="p-2.5 bg-primary-fixed text-on-primary-fixed rounded-lg">
+<span class="material-symbols-outlined text-[24px]">database</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Data Ingestion Hub &amp; Mapeo de Atributos</h2>
+<p class="text-body-sm text-outline">Carga de dataset de retail omnicanal, validación sintáctica y alineación de variables RFM.</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm font-semibold bg-secondary-container text-on-secondary-container border border-secondary/20">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+              retail_sales_dataset.csv (1,000 registros procesados, 100% validados)
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-5 mt-5">
+<!-- Interactive Drag & Drop Box -->
+<div class="xl:col-span-4 border-2 border-dashed border-outline-variant hover:border-primary rounded-xl p-5 bg-surface-container-low/50 hover:bg-surface-container-high/40 transition-all flex flex-col items-center justify-center text-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-surface-container-high group-hover:bg-primary group-hover:text-white text-primary flex items-center justify-center mb-3 transition-colors">
+<span class="material-symbols-outlined text-[28px]">cloud_upload</span>
+</div>
+<p class="text-label-md font-bold text-on-surface mb-1">Arrastra tu archivo o haz clic para subir</p>
+<p class="text-[12px] text-outline mb-3">Admite formatos .CSV y .XLSX hasta 50MB</p>
+<div class="flex gap-2">
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-semibold">.CSV</span>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-semibold">.XLSX</span>
+</div>
+</div>
+<!-- Smart Column Auto-Detector & Mapper -->
+<div class="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+<!-- Col 1: Date -->
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant shadow-none">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[11px] font-label-sm uppercase text-outline">Fecha Transacción</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+<p class="text-label-md font-bold text-on-surface">Columna 'Date'</p>
+<div class="mt-2 text-[11px] text-on-surface-variant flex items-center justify-between">
+<span>Rango detectado:</span>
+<span class="font-mono font-medium">2023-01 a 2024-01</span>
+</div>
+</div>
+<!-- Col 2: Customer ID -->
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant shadow-none">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[11px] font-label-sm uppercase text-outline">ID de Cliente</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+<p class="text-label-md font-bold text-on-surface">Columna 'Customer ID'</p>
+<div class="mt-2 text-[11px] text-on-surface-variant flex items-center justify-between">
+<span>Únicos válidos:</span>
+<span class="font-mono font-medium">1,000 Clientes</span>
+</div>
+</div>
+<!-- Col 3: Monetary Value -->
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant shadow-none">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[11px] font-label-sm uppercase text-outline">Monto Transaccional</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+<p class="text-label-md font-bold text-on-surface">Columna 'Total Amount'</p>
+<div class="mt-2 text-[11px] text-on-surface-variant flex items-center justify-between">
+<span>Rango monetario:</span>
+<span class="font-mono font-medium">$25 - $2,000</span>
+</div>
+</div>
+<!-- Col 4: Category -->
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant shadow-none">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[11px] font-label-sm uppercase text-outline">Categoría Producto</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+<p class="text-label-md font-bold text-on-surface">Columna 'Product Category'</p>
+<div class="mt-2 text-[11px] text-on-surface-variant flex items-center justify-between">
+<span>Subconjuntos:</span>
+<span class="font-mono font-medium">Beauty, Cloth, Elect</span>
+</div>
+</div>
+<!-- Reference Snapshot Date & Parse Status -->
+<div class="sm:col-span-2 md:col-span-4 mt-1 pt-3 border-t border-outline-variant/60 flex flex-wrap items-center justify-between gap-3 text-body-sm">
+<div class="flex items-center gap-3">
+<span class="text-outline text-label-md">Fecha de Referencia de Corte (Recencia):</span>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container rounded-lg border border-outline-variant text-on-surface font-mono font-bold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+                  2024-01-01 (Fecha máxima del dataset)
+                </div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm text-secondary font-semibold">Motor Cuantílico Calibrado: R (Días), F (Transacciones), M (Ingresos Netos)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 2. KPI METRIC TILES ================= -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="dashboard">
+<!-- Tile 1: Total Clientes -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant">Clientes Analizados</span>
+<div class="w-8 h-8 rounded-lg bg-primary-fixed/60 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</div>
+</div>
+<div class="text-metric-md font-metric-md font-bold text-on-surface tnum">1,000</div>
+<div class="mt-2 flex items-center gap-1.5 text-[12px]">
+<span class="inline-flex items-center text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> 100%
+            </span>
+<span class="text-outline">base consolidada</span>
+</div>
+</div>
+<!-- Tile 2: Ingresos Totales -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant">Ingresos Totales</span>
+<div class="w-8 h-8 rounded-lg bg-secondary-fixed-dim/30 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+</div>
+<div class="text-metric-md font-metric-md font-bold text-on-surface tnum">$456,000</div>
+<div class="mt-2 flex items-center gap-1.5 text-[12px]">
+<span class="inline-flex items-center text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">north_east</span> +8.4%
+            </span>
+<span class="text-outline">vs período previo</span>
+</div>
+</div>
+<!-- Tile 3: Ticket / Valor Promedio -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant">Valor Promedio (M)</span>
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+</div>
+</div>
+<div class="text-metric-md font-metric-md font-bold text-on-surface tnum">$456.00</div>
+<div class="mt-2 flex items-center gap-1.5 text-[12px]">
+<span class="inline-flex items-center text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +$34.20
+            </span>
+<span class="text-outline">por cliente retail</span>
+</div>
+</div>
+<!-- Tile 4: Frecuencia Media -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant">Frecuencia Media (F)</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+</div>
+</div>
+<div class="text-metric-md font-metric-md font-bold text-on-surface tnum">2.50 <span class="text-body-sm font-normal text-outline">órdenes</span></div>
+<div class="mt-2 flex items-center gap-1.5 text-[12px]">
+<span class="inline-flex items-center text-on-surface-variant font-semibold">
+<span class="material-symbols-outlined text-[14px]">check</span> Estable
+            </span>
+<span class="text-outline">1 a 5 compras/año</span>
+</div>
+</div>
+<!-- Tile 5: Recencia Media -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant">Recencia Media (R)</span>
+<div class="w-8 h-8 rounded-lg bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</div>
+</div>
+<div class="text-metric-md font-metric-md font-bold text-on-surface tnum">48.2 <span class="text-body-sm font-normal text-outline">días</span></div>
+<div class="mt-2 flex items-center gap-1.5 text-[12px]">
+<span class="inline-flex items-center text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">south</span> -4.1 días
+            </span>
+<span class="text-outline">ciclo de recompra</span>
+</div>
+</div>
+</section>
+<!-- ================= 3. RFM WEIGHTS CONFIGURATION PANEL ================= -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm" id="config-scoring">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-outline-variant">
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Ponderación de Scoring &amp; Calibración RFM</h2>
+<span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-surface-container-highest text-primary">Cuantiles 1 - 5</span>
+</div>
+<p class="text-body-sm text-outline">Ajuste de distribución percentil (Quintiles Q1-Q5) y pesos de ponderación para scoring compuesto.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[12px] text-secondary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+              Modelo calibrado y entrenado
+            </span>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-label-md font-semibold hover:bg-primary-container active:scale-[0.99] transition-all flex items-center gap-2 shadow-sm" id="btnRecalculate">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+              Recalcular Segmentación
+            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-5">
+<!-- Recency Slider -->
+<div class="space-y-2 p-3 bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex justify-between items-center text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+                Recencia (Recency)
+              </span>
+<span class="font-mono font-bold text-primary">30%</span>
+</div>
+<input class="w-full accent-primary h-2 bg-outline-variant rounded-lg cursor-pointer" max="60" min="10" type="range" value="30"/>
+<p class="text-[11px] text-outline">Días transcurridos desde la última transacción del cliente.</p>
+</div>
+<!-- Frequency Slider -->
+<div class="space-y-2 p-3 bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex justify-between items-center text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
+                Frecuencia (Frequency)
+              </span>
+<span class="font-mono font-bold text-secondary">35%</span>
+</div>
+<input class="w-full accent-secondary h-2 bg-outline-variant rounded-lg cursor-pointer" max="60" min="10" type="range" value="35"/>
+<p class="text-[11px] text-outline">Cantidad total de transacciones completadas en la ventana anual.</p>
+</div>
+<!-- Monetary Slider -->
+<div class="space-y-2 p-3 bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex justify-between items-center text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-purple-600 inline-block"></span>
+                Valor Monetario (Monetary)
+              </span>
+<span class="font-mono font-bold text-tertiary">35%</span>
+</div>
+<input class="w-full accent-tertiary h-2 bg-outline-variant rounded-lg cursor-pointer" max="60" min="10" type="range" value="35"/>
+<p class="text-[11px] text-outline">Suma del importe económico bruto facturado por cada cliente.</p>
+</div>
+</div>
+</section>
+<!-- ================= 4. RFM HEATMAP MATRIX 5x5 & REVENUE DISTRIBUTION ================= -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="matriz">
+<!-- 5x5 Heatmap Matrix Canvas -->
+<div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant gap-2">
+<div>
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Matriz Cuantílica RFM (5x5)</h2>
+<p class="text-body-sm text-outline">Frecuencia (Eje Y) vs Recencia (Eje X) con intensidad proporcional a valor monetario acumulado.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] text-outline">Intensidad Monetaria:</span>
+<div class="flex items-center gap-1 text-[10px] font-mono">
+<span class="w-4 h-3 rounded bg-blue-100 border border-outline-variant"></span>
+<span>Bajo</span>
+<span class="w-4 h-3 rounded bg-primary text-white border border-outline-variant ml-1"></span>
+<span>Alto ($$)</span>
+</div>
+</div>
+</div>
+<!-- Heatmap Canvas Container -->
+<div class="mt-6 overflow-x-auto">
+<div class="min-w-[560px]">
+<!-- Frequency Axis Label -->
+<div class="flex mb-2">
+<div class="w-28 text-left text-label-sm font-bold text-primary flex items-center gap-1">
+<span>Frecuencia (F)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+</div>
+<div class="flex-1 grid grid-cols-5 text-center text-label-sm font-bold text-outline">
+<span>R1 (81-120d)</span>
+<span>R2 (61-80d)</span>
+<span>R3 (41-60d)</span>
+<span>R4 (21-40d)</span>
+<span>R5 (1-20d)</span>
+</div>
+</div>
+<!-- Matrix Rows (F5 down to F1) -->
+<!-- Row F5 -->
+<div class="flex items-stretch gap-2 mb-2">
+<div class="w-28 flex items-center text-label-sm font-bold text-on-surface-variant">F5 (Alto: 5+)</div>
+<div class="flex-1 grid grid-cols-5 gap-2 h-16">
+<!-- R1, F5 (At Risk VIP) -->
+<div class="matrix-cell relative bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-amber-800">At Risk</span>
+<span class="text-label-md font-bold text-on-surface tnum">48 cl</span>
+<span class="text-[9px] text-outline font-mono">$38.4k</span>
+</div>
+<!-- R2, F5 -->
+<div class="matrix-cell relative bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-amber-700">Need Attention</span>
+<span class="text-label-md font-bold text-on-surface tnum">56 cl</span>
+<span class="text-[9px] text-outline font-mono">$44.8k</span>
+</div>
+<!-- R3, F5 -->
+<div class="matrix-cell relative bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-emerald-800">Loyal</span>
+<span class="text-label-md font-bold text-on-surface tnum">72 cl</span>
+<span class="text-[9px] text-outline font-mono">$68.2k</span>
+</div>
+<!-- R4, F5 -->
+<div class="matrix-cell relative bg-emerald-200 hover:bg-emerald-300 border border-emerald-400 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-emerald-900">Champions</span>
+<span class="text-label-md font-bold text-on-surface tnum">98 cl</span>
+<span class="text-[9px] text-emerald-950 font-mono font-bold">$92.1k</span>
+</div>
+<!-- R5, F5 -->
+<div class="matrix-cell relative bg-primary text-white hover:bg-primary-container border border-primary rounded-lg p-2 transition-all flex flex-col justify-between shadow-sm cursor-pointer">
+<span class="text-[10px] font-bold text-secondary-fixed">Super Champions</span>
+<span class="text-label-md font-bold text-white tnum">112 cl</span>
+<span class="text-[10px] text-secondary-fixed font-mono font-bold">$118.5k</span>
+</div>
+</div>
+</div>
+<!-- Row F4 -->
+<div class="flex items-stretch gap-2 mb-2">
+<div class="w-28 flex items-center text-label-sm font-bold text-on-surface-variant">F4 (Frec: 4)</div>
+<div class="flex-1 grid grid-cols-5 gap-2 h-16">
+<!-- R1, F4 -->
+<div class="matrix-cell relative bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-rose-800">At Risk</span>
+<span class="text-label-md font-bold text-on-surface tnum">34 cl</span>
+<span class="text-[9px] text-outline font-mono">$24.1k</span>
+</div>
+<!-- R2, F4 -->
+<div class="matrix-cell relative bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-amber-700">Need Attention</span>
+<span class="text-label-md font-bold text-on-surface tnum">45 cl</span>
+<span class="text-[9px] text-outline font-mono">$32.0k</span>
+</div>
+<!-- R3, F4 -->
+<div class="matrix-cell relative bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-emerald-800">Loyal</span>
+<span class="text-label-md font-bold text-on-surface tnum">64 cl</span>
+<span class="text-[9px] text-outline font-mono">$48.6k</span>
+</div>
+<!-- R4, F4 -->
+<div class="matrix-cell relative bg-emerald-200 hover:bg-emerald-300 border border-emerald-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-emerald-900">Loyal Growth</span>
+<span class="text-label-md font-bold text-on-surface tnum">80 cl</span>
+<span class="text-[9px] text-outline font-mono">$64.2k</span>
+</div>
+<!-- R5, F4 -->
+<div class="matrix-cell relative bg-emerald-300 hover:bg-emerald-400 border border-emerald-500 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-emerald-950">Champions</span>
+<span class="text-label-md font-bold text-on-surface tnum">88 cl</span>
+<span class="text-[9px] text-emerald-950 font-mono font-bold">$78.0k</span>
+</div>
+</div>
+</div>
+<!-- Row F3 -->
+<div class="flex items-stretch gap-2 mb-2">
+<div class="w-28 flex items-center text-label-sm font-bold text-on-surface-variant">F3 (Media: 3)</div>
+<div class="flex-1 grid grid-cols-5 gap-2 h-16">
+<!-- R1, F3 -->
+<div class="matrix-cell relative bg-rose-100 hover:bg-rose-200 border border-rose-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-rose-800">Hibernating</span>
+<span class="text-label-md font-bold text-on-surface tnum">31 cl</span>
+<span class="text-[9px] text-outline font-mono">$18.9k</span>
+</div>
+<!-- R2, F3 -->
+<div class="matrix-cell relative bg-surface-container-high border border-outline-variant rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-on-surface-variant">About to Sleep</span>
+<span class="text-label-md font-bold text-on-surface tnum">42 cl</span>
+<span class="text-[9px] text-outline font-mono">$25.1k</span>
+</div>
+<!-- R3, F3 -->
+<div class="matrix-cell relative bg-surface-container hover:bg-surface-container-high border border-outline-variant rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-on-surface-variant">Promising</span>
+<span class="text-label-md font-bold text-on-surface tnum">51 cl</span>
+<span class="text-[9px] text-outline font-mono">$31.5k</span>
+</div>
+<!-- R4, F3 -->
+<div class="matrix-cell relative bg-blue-100 hover:bg-blue-200 border border-blue-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-blue-900">Potential Loyalist</span>
+<span class="text-label-md font-bold text-on-surface tnum">58 cl</span>
+<span class="text-[9px] text-outline font-mono">$36.4k</span>
+</div>
+<!-- R5, F3 -->
+<div class="matrix-cell relative bg-blue-200 hover:bg-blue-300 border border-blue-400 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-blue-950">Potential Loyalist</span>
+<span class="text-label-md font-bold text-on-surface tnum">62 cl</span>
+<span class="text-[9px] text-blue-950 font-mono font-bold">$41.0k</span>
+</div>
+</div>
+</div>
+<!-- Row F2 -->
+<div class="flex items-stretch gap-2 mb-2">
+<div class="w-28 flex items-center text-label-sm font-bold text-on-surface-variant">F2 (Baja: 2)</div>
+<div class="flex-1 grid grid-cols-5 gap-2 h-16">
+<!-- R1, F2 -->
+<div class="matrix-cell relative bg-rose-100 hover:bg-rose-200 border border-rose-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-rose-900">Lost</span>
+<span class="text-label-md font-bold text-on-surface tnum">28 cl</span>
+<span class="text-[9px] text-outline font-mono">$12.4k</span>
+</div>
+<!-- R2, F2 -->
+<div class="matrix-cell relative bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-rose-800">Hibernating</span>
+<span class="text-label-md font-bold text-on-surface tnum">35 cl</span>
+<span class="text-[9px] text-outline font-mono">$16.2k</span>
+</div>
+<!-- R3, F2 -->
+<div class="matrix-cell relative bg-surface-container-low hover:bg-surface-container border border-outline-variant rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-outline">Promising</span>
+<span class="text-label-md font-bold text-on-surface tnum">44 cl</span>
+<span class="text-[9px] text-outline font-mono">$21.8k</span>
+</div>
+<!-- R4, F2 -->
+<div class="matrix-cell relative bg-sky-100 hover:bg-sky-200 border border-sky-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-sky-900">Recent Customer</span>
+<span class="text-label-md font-bold text-on-surface tnum">49 cl</span>
+<span class="text-[9px] text-outline font-mono">$23.5k</span>
+</div>
+<!-- R5, F2 -->
+<div class="matrix-cell relative bg-sky-200 hover:bg-sky-300 border border-sky-400 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-sky-950">New Promising</span>
+<span class="text-label-md font-bold text-on-surface tnum">52 cl</span>
+<span class="text-[9px] text-sky-950 font-mono font-bold">$27.2k</span>
+</div>
+</div>
+</div>
+<!-- Row F1 -->
+<div class="flex items-stretch gap-2">
+<div class="w-28 flex items-center text-label-sm font-bold text-on-surface-variant">F1 (Ocasional: 1)</div>
+<div class="flex-1 grid grid-cols-5 gap-2 h-16">
+<!-- R1, F1 -->
+<div class="matrix-cell relative bg-rose-200 hover:bg-rose-300 border border-rose-400 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-rose-950">Lost Customers</span>
+<span class="text-label-md font-bold text-on-surface tnum">39 cl</span>
+<span class="text-[9px] text-outline font-mono">$9.8k</span>
+</div>
+<!-- R2, F1 -->
+<div class="matrix-cell relative bg-rose-100 hover:bg-rose-200 border border-rose-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-rose-900">Lost Customers</span>
+<span class="text-label-md font-bold text-on-surface tnum">29 cl</span>
+<span class="text-[9px] text-outline font-mono">$8.4k</span>
+</div>
+<!-- R3, F1 -->
+<div class="matrix-cell relative bg-surface-container-low hover:bg-surface-container border border-outline-variant rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-outline">Cold Leads</span>
+<span class="text-label-md font-bold text-on-surface tnum">23 cl</span>
+<span class="text-[9px] text-outline font-mono">$7.1k</span>
+</div>
+<!-- R4, F1 -->
+<div class="matrix-cell relative bg-cyan-100 hover:bg-cyan-200 border border-cyan-300 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-semibold text-cyan-900">New Customers</span>
+<span class="text-label-md font-bold text-on-surface tnum">25 cl</span>
+<span class="text-[9px] text-outline font-mono">$8.9k</span>
+</div>
+<!-- R5, F1 -->
+<div class="matrix-cell relative bg-cyan-200 hover:bg-cyan-300 border border-cyan-400 rounded-lg p-2 transition-all flex flex-col justify-between cursor-pointer">
+<span class="text-[10px] font-bold text-cyan-950">New Customers</span>
+<span class="text-label-md font-bold text-on-surface tnum">28 cl</span>
+<span class="text-[9px] text-cyan-950 font-mono font-bold">$10.2k</span>
+</div>
+</div>
+</div>
+<!-- Recency Axis Label -->
+<div class="flex mt-3">
+<div class="w-28"></div>
+<div class="flex-1 text-center text-label-sm font-bold text-primary flex items-center justify-center gap-1">
+<span>Recencia (R) - Más Reciente hacia la Derecha</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Revenue Breakdown & Cluster Distribution -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Distribution by Product Category -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm">
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface mb-1">Ingresos por Categoría</h2>
+<p class="text-body-sm text-outline mb-4">Ventas acumuladas según 'retail_sales_dataset.csv'.</p>
+<div class="space-y-4">
+<!-- Electronics -->
+<div>
+<div class="flex justify-between items-center text-label-md mb-1.5">
+<span class="font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">devices</span>
+                    Electronics
+                  </span>
+<span class="font-mono font-bold text-on-surface tnum">$168,720 <span class="text-[11px] text-outline">(37%)</span></span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 37%"></div>
+</div>
+</div>
+<!-- Clothing -->
+<div>
+<div class="flex justify-between items-center text-label-md mb-1.5">
+<span class="font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">checkroom</span>
+                    Clothing
+                  </span>
+<span class="font-mono font-bold text-on-surface tnum">$155,040 <span class="text-[11px] text-outline">(34%)</span></span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 34%"></div>
+</div>
+</div>
+<!-- Beauty -->
+<div>
+<div class="flex justify-between items-center text-label-md mb-1.5">
+<span class="font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px]">spa</span>
+                    Beauty
+                  </span>
+<span class="font-mono font-bold text-on-surface tnum">$132,240 <span class="text-[11px] text-outline">(29%)</span></span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 29%"></div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-outline-variant flex items-center justify-between text-[12px] text-outline">
+<span>Transacciones mapeadas</span>
+<span class="font-mono font-semibold text-on-surface">1,000 órdenes</span>
+</div>
+</div>
+<!-- Major RFM Segments Summary Widget -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-3" id="segmentos">
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Resumen de Segmentos Clave</h2>
+<div class="space-y-2.5">
+<!-- Champions -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant">
+<div class="flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+<div>
+<p class="text-label-md font-bold text-on-surface">Champions (R: 4-5, F: 4-5)</p>
+<p class="text-[11px] text-outline">298 clientes (29.8%)</p>
+</div>
+</div>
+<span class="font-mono text-label-md font-bold text-secondary tnum">$184.2k</span>
+</div>
+<!-- Loyal Customers -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant">
+<div class="flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+<div>
+<p class="text-label-md font-bold text-on-surface">Loyal Customers (R: 3-5, F: 3-5)</p>
+<p class="text-[11px] text-outline">267 clientes (26.7%)</p>
+</div>
+</div>
+<span class="font-mono text-label-md font-bold text-primary tnum">$142.8k</span>
+</div>
+<!-- At Risk -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-200">
+<div class="flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+<div>
+<p class="text-label-md font-bold text-amber-950">At Risk (R: 1-2, F: 3-5)</p>
+<p class="text-[11px] text-amber-800">183 clientes (18.3%)</p>
+</div>
+</div>
+<span class="font-mono text-label-md font-bold text-amber-900 tnum">$72.4k</span>
+</div>
+<!-- Hibernating / Lost -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+<div class="flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+<div>
+<p class="text-label-md font-bold text-rose-950">Lost / Dormant (R: 1, F: 1-2)</p>
+<p class="text-[11px] text-rose-800">252 clientes (25.2%)</p>
+</div>
+</div>
+<span class="font-mono text-label-md font-bold text-rose-900 tnum">$56.6k</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 5. AUTOMATED RETENTION STRATEGIES PANEL ================= -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm" id="estrategias">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant gap-3">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-tertiary-fixed text-tertiary rounded-lg">
+<span class="material-symbols-outlined text-[22px]">campaign</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Motor de Estrategias Automatizadas de Retención</h2>
+<p class="text-body-sm text-outline">Playbooks de acción directa recomendados según el comportamiento de cada cohorte RFM.</p>
+</div>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-label-md font-semibold text-primary bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+            Sincronizar con CRM / Marketing Hub
+          </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+<!-- Playbook 1: Champions -->
+<div class="p-4 rounded-xl border border-secondary/30 bg-surface-container-lowest hover:border-secondary transition-colors relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-fixed/20 rounded-full blur-2xl -mr-6 -mt-6"></div>
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Champions &amp; Super Loyal
+                </span>
+<span class="text-[11px] font-mono text-outline">298 Clientes</span>
+</div>
+<h3 class="text-label-md font-bold text-on-surface mb-1">Programa VIP &amp; Acceso Temprano Exclusivo</h3>
+<p class="text-body-sm text-on-surface-variant mb-4">Recompensar sin canibalizar margen. Otorgar invitaciones preventa a colecciones nuevas de Electronics y Beauty.</p>
+</div>
+<div class="pt-3 border-t border-outline-variant/60 flex items-center justify-between">
+<span class="text-[11px] font-semibold text-secondary">Impacto estimado: +12% LTV</span>
+<button class="px-3 py-1.5 bg-secondary text-white rounded-lg text-label-sm font-bold hover:bg-on-secondary-container transition-colors">Activar Flujo</button>
+</div>
+</div>
+<!-- Playbook 2: At Risk -->
+<div class="p-4 rounded-xl border border-amber-300 bg-amber-50/40 hover:border-amber-400 transition-colors relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-amber-200/30 rounded-full blur-2xl -mr-6 -mt-6"></div>
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-amber-100 text-amber-900 border border-amber-300">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  Clientes en Riesgo (At Risk)
+                </span>
+<span class="text-[11px] font-mono text-outline">183 Clientes</span>
+</div>
+<h3 class="text-label-md font-bold text-amber-950 mb-1">Campaña de Reactivación: Descuento 20% Personalizado</h3>
+<p class="text-body-sm text-amber-900 mb-4">Compraban con alta frecuencia pero llevan más de 60 días sin actividad. Disparar email + WhatsApp en Beauty/Clothing en los próximos 7 días.</p>
+</div>
+<div class="pt-3 border-t border-amber-200 flex items-center justify-between">
+<span class="text-[11px] font-semibold text-amber-800">Recuperación estimada: $22,400</span>
+<button class="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-label-sm font-bold hover:bg-amber-700 transition-colors">Lanzar Reactivación</button>
+</div>
+</div>
+<!-- Playbook 3: Lost / Dormant -->
+<div class="p-4 rounded-xl border border-rose-300 bg-rose-50/40 hover:border-rose-400 transition-colors relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-rose-200/30 rounded-full blur-2xl -mr-6 -mt-6"></div>
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-rose-100 text-rose-900 border border-rose-300">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                  Clientes Inactivos (Lost / Dormant)
+                </span>
+<span class="text-[11px] font-mono text-outline">252 Clientes</span>
+</div>
+<h3 class="text-label-md font-bold text-rose-950 mb-1">Encuesta de Salida &amp; Remate de Liquidación</h3>
+<p class="text-body-sm text-rose-900 mb-4">Compraron solo 1 vez hace más de 90 días. Enviar breve encuesta con incentivo de $15 de regalo para compras mínimas en remate de stock.</p>
+</div>
+<div class="pt-3 border-t border-rose-200 flex items-center justify-between">
+<span class="text-[11px] font-semibold text-rose-800">Tasa reactivación esperada: 4.8%</span>
+<button class="px-3 py-1.5 bg-rose-700 text-white rounded-lg text-label-sm font-bold hover:bg-rose-800 transition-colors">Ejecutar Encuesta</button>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 6. CUSTOMER EXPLORER DATA TABLE ================= -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4" id="explorador">
+<!-- Explorer Header & Multi-Filters -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-outline-variant">
+<div>
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Explorador Individual de Clientes</h2>
+<p class="text-body-sm text-outline">Listado granular enriquecido con atributos demográficos y puntuación quintílica del dataset.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2.5">
+<!-- Segment Filter -->
+<select class="px-3 py-1.5 text-body-sm bg-surface-container-low border border-outline-variant rounded-lg text-on-surface focus:ring-2 focus:ring-primary focus:outline-none">
+<option value="all">Todos los Segmentos</option>
+<option value="champions">Champions</option>
+<option value="loyal">Loyal Customers</option>
+<option value="potential">Potential Loyalists</option>
+<option value="atrisk">At Risk</option>
+<option value="lost">Lost Customers</option>
+</select>
+<!-- Category Filter -->
+<select class="px-3 py-1.5 text-body-sm bg-surface-container-low border border-outline-variant rounded-lg text-on-surface focus:ring-2 focus:ring-primary focus:outline-none">
+<option value="all">Todas las Categorías</option>
+<option value="beauty">Beauty</option>
+<option value="clothing">Clothing</option>
+<option value="electronics">Electronics</option>
+</select>
+<!-- Gender Filter -->
+<select class="px-3 py-1.5 text-body-sm bg-surface-container-low border border-outline-variant rounded-lg text-on-surface focus:ring-2 focus:ring-primary focus:outline-none">
+<option value="all">Género: Todos</option>
+<option value="female">Femenino</option>
+<option value="male">Masculino</option>
+</select>
+<button class="px-3 py-1.5 bg-surface-container-high hover:bg-surface-container-highest text-primary rounded-lg text-label-md font-semibold flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+              Filtrar
+            </button>
+</div>
+</div>
+<!-- High Precision Data Table -->
+<div class="overflow-x-auto rounded-lg border border-outline-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-label-sm uppercase tracking-wider text-outline">
+<th class="py-3 px-4 font-semibold">Customer ID</th>
+<th class="py-3 px-4 font-semibold">Perfil (Género / Edad)</th>
+<th class="py-3 px-4 font-semibold">Categoría Favorita</th>
+<th class="py-3 px-4 font-semibold text-right">Última Compra (Recencia)</th>
+<th class="py-3 px-4 font-semibold text-right">Frecuencia</th>
+<th class="py-3 px-4 font-semibold text-right">Monto Total (Monetary)</th>
+<th class="py-3 px-4 font-semibold text-center">Score RFM</th>
+<th class="py-3 px-4 font-semibold">Segmento Asignado</th>
+<th class="py-3 px-4 font-semibold text-right">Acción Recomendada</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant text-body-sm text-on-surface">
+<!-- Record 1: CUST001 (Champion) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3 px-4 font-mono font-bold text-primary">CUST001</td>
+<td class="py-3 px-4">
+<span class="font-medium">Femenino</span>, <span class="text-outline">34 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-tertiary">
+<span class="material-symbols-outlined text-[14px]">spa</span> Beauty
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-on-surface">4 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-12-28</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">5 transacciones</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-secondary tnum">$1,850.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold">5 - 5 - 5</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Champions
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-surface-container-high hover:bg-surface-container-highest text-primary font-semibold text-[11px] rounded-lg transition-colors">
+                    Invitación VIP
+                  </button>
+</td>
+</tr>
+<!-- Record 2: CUST002 (Loyal) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3 px-4 font-mono font-bold text-primary">CUST002</td>
+<td class="py-3 px-4">
+<span class="font-medium">Masculino</span>, <span class="text-outline">42 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-primary">
+<span class="material-symbols-outlined text-[14px]">devices</span> Electronics
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-on-surface">18 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-12-14</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">4 transacciones</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-secondary tnum">$1,220.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-bold">4 - 4 - 4</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Loyal Customers
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-surface-container-high hover:bg-surface-container-highest text-primary font-semibold text-[11px] rounded-lg transition-colors">
+                    Cross-sell Electrónica
+                  </button>
+</td>
+</tr>
+<!-- Record 3: CUST003 (At Risk) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors bg-amber-50/20">
+<td class="py-3 px-4 font-mono font-bold text-amber-900">CUST003</td>
+<td class="py-3 px-4">
+<span class="font-medium">Femenino</span>, <span class="text-outline">29 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-secondary">
+<span class="material-symbols-outlined text-[14px]">checkroom</span> Clothing
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-amber-900">76 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-10-17</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">4 transacciones</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface tnum">$940.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold">2 - 4 - 4</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-amber-100 text-amber-900 border border-amber-300">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                    At Risk
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] rounded-lg transition-colors shadow-sm">
+                    Cupón 20% Reactivación
+                  </button>
+</td>
+</tr>
+<!-- Record 4: CUST004 (Potential Loyalist) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3 px-4 font-mono font-bold text-primary">CUST004</td>
+<td class="py-3 px-4">
+<span class="font-medium">Masculino</span>, <span class="text-outline">51 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-primary">
+<span class="material-symbols-outlined text-[14px]">devices</span> Electronics
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-on-surface">11 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-12-21</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">2 transacciones</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface tnum">$680.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-sky-100 text-sky-900 font-bold">5 - 2 - 3</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-sky-50 text-sky-800 border border-sky-200">
+<span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
+                    Potential Loyalist
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-surface-container-high hover:bg-surface-container-highest text-primary font-semibold text-[11px] rounded-lg transition-colors">
+                    Recomendación Prod.
+                  </button>
+</td>
+</tr>
+<!-- Record 5: CUST005 (Lost) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors bg-rose-50/20">
+<td class="py-3 px-4 font-mono font-bold text-rose-900">CUST005</td>
+<td class="py-3 px-4">
+<span class="font-medium">Femenino</span>, <span class="text-outline">22 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-secondary">
+<span class="material-symbols-outlined text-[14px]">checkroom</span> Clothing
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-rose-900">114 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-09-09</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">1 transacción</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface tnum">$65.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-rose-100 text-rose-900 font-bold">1 - 1 - 1</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-rose-100 text-rose-900 border border-rose-300">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                    Lost Customers
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-outline-variant hover:bg-outline text-on-surface font-semibold text-[11px] rounded-lg transition-colors">
+                    Encuesta Churn
+                  </button>
+</td>
+</tr>
+<!-- Record 6: CUST006 (Loyal) -->
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-3 px-4 font-mono font-bold text-primary">CUST006</td>
+<td class="py-3 px-4">
+<span class="font-medium">Femenino</span>, <span class="text-outline">39 años</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 text-[12px] font-semibold text-tertiary">
+<span class="material-symbols-outlined text-[14px]">spa</span> Beauty
+                  </span>
+</td>
+<td class="py-3 px-4 text-right tnum">
+<span class="font-bold text-on-surface">22 días</span>
+<span class="block text-[11px] text-outline font-mono">2023-12-10</span>
+</td>
+<td class="py-3 px-4 text-right font-bold tnum">3 transacciones</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-secondary tnum">$810.00</td>
+<td class="py-3 px-4 text-center">
+<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-bold">4 - 3 - 4</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label-sm font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Loyal Customers
+                  </span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 bg-surface-container-high hover:bg-surface-container-highest text-primary font-semibold text-[11px] rounded-lg transition-colors">
+                    Upsell Programa Belleza
+                  </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination & Count -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-body-sm text-outline">
+<div class="flex items-center gap-2">
+<span>Mostrando <span class="font-bold text-on-surface">1 - 6</span> de <span class="font-bold text-on-surface">1,000</span> clientes del dataset</span>
+<span class="text-outline-variant">|</span>
+<span>20 registros por página</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="px-3 py-1 bg-primary text-white font-bold rounded text-[12px]">1</button>
+<button class="px-3 py-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface text-[12px]">2</button>
+<button class="px-3 py-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface text-[12px]">3</button>
+<span class="px-1 text-outline">...</span>
+<button class="px-3 py-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface text-[12px]">50</button>
+<button class="px-2.5 py-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ================= FOOTER ================= -->
+<footer class="pt-6 pb-8 border-t border-outline-variant text-center text-body-sm text-outline">
+<div class="flex flex-wrap justify-between items-center gap-4 max-w-[1600px] mx-auto">
+<div class="flex items-center gap-2">
+<span class="font-bold text-on-surface">OmniRFM Analytics Studio</span>
+<span>— Retail Customer Lifetime Modeling &amp; Behavioral Segmentation</span>
+</div>
+<div class="flex items-center gap-4 text-[12px]">
+<span>Dataset: retail_sales_dataset.csv</span>
+<span>Motor RFM: 5 Quintiles</span>
+<span>Última sincronización: Hoy, 12:45 PM</span>
+</div>
+</div>
+</footer>
+</main>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnRecalculate = document.getElementById('btnRecalculate');
+      if (btnRecalculate) {
+        btnRecalculate.addEventListener('click', () => {
+          const originalHTML = btnRecalculate.innerHTML;
+          btnRecalculate.disabled = true;
+          btnRecalculate.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Recalculando...`;
+          
+          setTimeout(() => {
+            btnRecalculate.disabled = false;
+            btnRecalculate.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span> Modelo Actualizado!`;
+            setTimeout(() => {
+              btnRecalculate.innerHTML = originalHTML;
+            }, 2500);
+          }, 800);
+        });
+      }
+
+      const btnLoadExample = document.getElementById('btnLoadExample');
+      if (btnLoadExample) {
+        btnLoadExample.addEventListener('click', () => {
+          alert('Dataset cargado con éxito: retail_sales_dataset.csv (1,000 registros)');
+        });
+      }
+    });
+  </script>
+</body></html>
